@@ -1,115 +1,253 @@
-# Template didático de autenticação com Node.js
+# Projeto DSW – Autenticação com Node.js
 
 ## 1. Objetivo do projeto
 
-Este projeto é uma base para a aula prática de Desenvolvimento de Sistemas Web do 3º ano do Ensino Médio Técnico em Informática. O objetivo é aprender o fluxo:
+Este projeto tem como objetivo desenvolver uma API de autenticação utilizando Node.js e Express, com cadastro de usuários, login, criptografia de senhas, autenticação por token JWT e controle de acesso para usuários administradores.
 
-**cadastro → hash de senha → login → sessão/token → middleware → rota protegida**
+O projeto faz parte da disciplina de Desenvolvimento de Sistemas Web (DSW).
 
-As partes principais da autenticação contêm `TODOs`. Elas não estão prontas: serão implementadas pelos alunos durante a aula e depois poderão ser adaptadas aos projetos de TCC.
+---
 
-## 2. Tecnologias usadas
+## 2. Tecnologias utilizadas
 
-- Node.js e Express
-- ES Modules (`import` e `export`)
-- Prisma ORM e MySQL
+- Node.js
+- Express
+- Prisma ORM
+- MySQL
 - bcrypt
-- jsonwebtoken (JWT)
+- JSON Web Token (JWT)
+- CORS
 - dotenv
-- cors
-- nodemon
+- Nodemon
+- Insomnia
+
+---
 
 ## 3. Estrutura de pastas
 
 ```text
-src/
-├── controllers/
-│   ├── authController.js
-│   └── userController.js
-├── middlewares/
-│   └── authMiddleware.js
-├── routes/
-│   ├── authRoutes.js
-│   └── userRoutes.js
-├── prismaClient.js
-├── app.js
-└── server.js
-prisma/
-├── schema.prisma
-└── seed.js
-.env.example
-.gitignore
-package.json
-README.md
+backend/
+├── prisma/
+│   ├── migrations/
+│   ├── schema.prisma
+│   └── seed.js
+│
+├── src/
+│   ├── controllers/
+│   │   ├── authController.js
+│   │   └── userController.js
+│   │
+│   ├── middlewares/
+│   │   ├── authMiddleware.js
+│   │   └── adminMiddleware.js
+│   │
+│   ├── routes/
+│   │   ├── authRoutes.js
+│   │   └── userRoutes.js
+│   │
+│   ├── prismaClient.js
+│   ├── app.js
+│   └── server.js
+│
+├── .env
+├── .env.example
+├── .gitignore
+├── package.json
+├── package-lock.json
+└── README.md
 ```
 
-## 4. Como instalar as dependências
+---
 
-Tenha o Node.js e um servidor MySQL instalados. No terminal, dentro da pasta do projeto, execute:
+## 4. Configuração do projeto
+
+Para executar o projeto, é necessário possuir o Node.js instalado e configurar as variáveis de ambiente no arquivo `.env`.
+
+A aplicação utiliza uma variável `DATABASE_URL` para a conexão com o banco de dados e uma variável `JWT_SECRET` para a criação e validação dos tokens JWT.
+
+As dependências do projeto são instaladas utilizando:
 
 ```bash
 npm install
 ```
 
-## 5. Como configurar o `.env`
+---
 
-Copie o arquivo de exemplo:
+## 5. Como executar o projeto
 
-```bash
-cp .env.example .env
-```
-
-No PowerShell, se `cp` não funcionar, use `Copy-Item .env.example .env`.
-
-Depois, abra o `.env` e troque usuário, senha, host e nome do banco conforme sua instalação do MySQL:
-
-```env
-DATABASE_URL="mysql://usuario:senha@localhost:3306/template_auth_tcc"
-JWT_SECRET="troque_essa_chave"
-JWT_EXPIRES_IN="1d"
-PORT=3000
-```
-
-O arquivo `.env` contém dados privados e não deve ser enviado ao Git. O `.env.example` mostra apenas o formato esperado.
-
-## 6. Como criar o banco com Prisma
-
-Com o MySQL funcionando e o `.env` configurado, execute:
-
-```bash
-npx prisma migrate dev --name init
-```
-
-Esse comando cria as tabelas descritas em `prisma/schema.prisma` e gera o Prisma Client.
-
-## 7. Como rodar o seed
-
-```bash
-npx prisma db seed
-```
-
-O seed cria ou atualiza este usuário de teste:
-
-- Email: `aluno@email.com`
-- Senha: `123456`
-
-A senha não é salva pura: o seed usa o bcrypt para gerar seu hash.
-
-## 8. Como iniciar o servidor
+Para iniciar o servidor em modo de desenvolvimento, utilize:
 
 ```bash
 npm run dev
 ```
 
-A API estará disponível em `http://localhost:3000`. O nodemon reinicia o servidor quando um arquivo é alterado.
+O servidor será executado, por padrão, em:
 
-## 9. Como testar as rotas
+```text
+http://localhost:3000
+```
 
-Use Insomnia, Postman ou outra ferramenta de requisições HTTP.
+Também é possível verificar se a API está funcionando através da rota:
 
-### Testar a API
+```text
+GET /health
+```
 
-`GET http://localhost:3000/health`
+---
+
+## 6. Banco de dados
+
+O projeto utiliza o Prisma ORM para comunicação com o banco de dados.
+
+As alterações do banco de dados são controladas através das migrations do Prisma.
+
+Para executar as migrations, utilize:
+
+```bash
+npx prisma migrate dev
+```
+
+O banco possui a tabela de usuários com os seguintes dados principais:
+
+- `id`
+- `name`
+- `email`
+- `password`
+- `role`
+- `createdAt`
+- `updatedAt`
+
+O campo `role` define o nível de acesso do usuário, podendo ser `USER` ou `ADMIN`.
+
+---
+
+## 7. Como rodar o seed
+
+O projeto possui um seed do Prisma para criar usuários de teste no banco de dados.
+
+Para executar o seed, utilize:
+
+```bash
+npm run prisma:seed
+```
+
+O seed cria dois usuários:
+
+- Usuário comum (`USER`)
+- Usuário administrador (`ADMIN`)
+
+Ambos utilizam a senha de teste:
+
+```text
+123456
+```
+
+---
+
+## 8. Autenticação e controle de acesso
+
+As senhas dos usuários não são armazenadas diretamente no banco de dados. Antes do armazenamento, elas são criptografadas utilizando a biblioteca bcrypt.
+
+Durante o login, a senha informada é comparada com a senha criptografada armazenada no banco.
+
+Quando o login é realizado corretamente, a API gera um token JWT.
+
+As rotas privadas utilizam o `authMiddleware`, responsável por verificar se o token foi informado e se é válido.
+
+O `adminMiddleware` realiza uma segunda verificação para permitir o acesso às rotas administrativas somente para usuários com a função `ADMIN`.
+
+Os principais códigos de resposta utilizados são:
+
+- `200` – Requisição realizada com sucesso
+- `201` – Cadastro realizado com sucesso
+- `400` – Dados obrigatórios não informados
+- `401` – Usuário não autenticado ou token inválido
+- `403` – Usuário autenticado, mas sem permissão
+- `409` – Email já cadastrado
+- `500` – Erro interno do servidor
+
+---
+
+## 9. Rotas da API
+
+### Cadastro de usuário
+
+**POST `/usuarios`**
+
+Realiza o cadastro de um novo usuário.
+
+Exemplo de dados enviados:
+
+```json
+{
+  "name": "Usuario Teste",
+  "email": "teste@teste.com",
+  "password": "123456"
+}
+```
+
+A senha é criptografada com bcrypt antes de ser armazenada no banco de dados.
+
+---
+
+### Login
+
+**POST `/login`**
+
+Realiza a autenticação do usuário.
+
+Exemplo:
+
+```json
+{
+  "email": "teste@teste.com",
+  "password": "123456"
+}
+```
+
+Quando o login é realizado corretamente, a API retorna um token JWT.
+
+---
+
+### Perfil
+
+**GET `/perfil`**
+
+É uma rota privada e exige um token JWT válido.
+
+O token deve ser enviado no cabeçalho `Authorization` utilizando o formato:
+
+```text
+Bearer TOKEN
+```
+
+Sem um token válido, o acesso é bloqueado.
+
+---
+
+### Área administrativa
+
+**GET `/admin`**
+
+É uma rota privada destinada somente aos usuários com função `ADMIN`.
+
+Além de possuir um token JWT válido, o usuário precisa ter a função administrativa.
+
+Um usuário comum recebe:
+
+```text
+403 Forbidden
+```
+
+ao tentar acessar essa rota.
+
+---
+
+### Saúde da API
+
+**GET `/health`**
+
+Verifica se a API está funcionando corretamente.
 
 Resposta esperada:
 
@@ -120,181 +258,80 @@ Resposta esperada:
 }
 ```
 
-### Cadastro
+---
 
-`POST http://localhost:3000/auth/register`
+## 10. Testes realizados no Insomnia
 
-```json
-{
-  "name": "Ana Souza",
-  "email": "ana@email.com",
-  "password": "123456"
-}
-```
+As rotas da API foram testadas utilizando o Insomnia.
 
-### Login
+Foram realizados testes de:
 
-`POST http://localhost:3000/auth/login`
+- Cadastro de usuário
+- Login com dados corretos
+- Login com senha incorreta
+- Acesso ao perfil com token válido
+- Acesso ao perfil sem token
+- Acesso ao perfil com token inválido
+- Acesso à área administrativa com usuário comum
+- Acesso à área administrativa com usuário administrador
+- Cadastro utilizando email já existente
+- Cadastro sem informar todos os campos
+- Verificação do funcionamento da API
 
-```json
-{
-  "email": "ana@email.com",
-  "password": "123456"
-}
-```
+Os testes confirmam o funcionamento da autenticação, da validação do token JWT e do controle de acesso entre usuários comuns e administradores.
 
-### Perfil protegido
+---
 
-`GET http://localhost:3000/users/profile`
+## 11. Fluxo de funcionamento
 
-Depois de completar o login, envie o token no cabeçalho:
-
-```text
-Authorization: Bearer SEU_TOKEN_AQUI
-```
-
-Enquanto os `TODOs` não forem completados, cadastro, login e middleware respondem com status `501`, indicando que são exercícios ainda não implementados.
-
-## 10. O que é hash de senha?
-
-Hash é o resultado de uma transformação de mão única. Em vez de salvar `123456` no banco, usamos o bcrypt para guardar um valor transformado. Não precisamos descobrir a senha a partir do hash: no login, o bcrypt verifica se a senha digitada corresponde ao hash salvo.
-
-## 11. O que é login?
-
-Login é o processo de confirmar a identidade do usuário. O backend busca o email e compara a senha digitada com o hash armazenado. Se a comparação estiver correta, o usuário é autenticado.
-
-## 12. O que é token JWT?
-
-JWT é um texto assinado pelo backend que pode guardar informações mínimas, como o `id` do usuário. A assinatura permite verificar se o token foi realmente criado pela API e se não foi alterado. Senhas nunca devem ser colocadas no token.
-
-## 13. O que é sessão no contexto da API?
-
-Neste projeto, o token funciona como uma sessão da API. Depois do login, o cliente guarda o token e o envia nas próximas requisições. Assim, o usuário prova que já realizou o login. O token tem tempo de validade definido por `JWT_EXPIRES_IN`.
-
-## 14. O que é middleware?
-
-Middleware é uma função que fica no meio do caminho entre a requisição e a resposta.
-
-Quando o usuário tenta acessar uma rota, o Express pode executar primeiro um middleware. Esse middleware pode:
-
-- deixar a requisição continuar;
-- bloquear a requisição;
-- modificar a requisição;
-- adicionar informações na requisição.
-
-No caso da autenticação, o middleware funciona como um **porteiro**. Ele verifica se o usuário enviou um token válido. Se o token for válido, chama `next()` e deixa a rota continuar. Se o token não existir ou for inválido, bloqueia o acesso.
+O funcionamento principal da API segue o seguinte fluxo:
 
 ```text
-requisição do usuário
-        ↓
-middleware verifica o token
-        ↓
-se estiver correto, chama next()
-        ↓
-rota protegida é executada
+Cadastro
+   ↓
+Senha criptografada com bcrypt
+   ↓
+Usuário armazenado no banco
+   ↓
+Login
+   ↓
+Validação da senha
+   ↓
+Geração do token JWT
+   ↓
+Envio do token nas rotas privadas
+   ↓
+authMiddleware valida o token
+   ↓
+Verificação da permissão
+   ↓
+Acesso ao perfil ou à área administrativa
 ```
 
-Se o middleware não chamar `next()`, a rota final não será executada. Quando completo, nosso middleware também buscará o usuário e o colocará em `req.user`, para que a rota seguinte saiba quem está autenticado.
+Usuários comuns possuem a função `USER` e podem acessar as rotas privadas permitidas.
 
-## 15. O que é rota protegida?
+Usuários administradores possuem a função `ADMIN` e podem acessar também as rotas administrativas.
 
-É uma rota que só pode ser acessada por um usuário autenticado. Antes de executar o controller da rota, o Express executa o middleware:
+---
 
-```js
-router.get("/profile", authMiddleware, getProfile);
+## 12. Usuários de teste
+
+O seed disponibiliza os seguintes usuários para testes:
+
+### Usuário comum
+
+```text
+Email: aluno@email.com
+Senha: 123456
+Função: USER
 ```
 
-Primeiro roda `authMiddleware`. Somente quando ele chama `next()` o Express executa `getProfile`.
+### Administrador
 
-## Fluxo completo de autenticação
+```text
+Email: admin@email.com
+Senha: 123456
+Função: ADMIN
+```
 
-1. O usuário se cadastra.
-2. A senha não deve ser salva pura.
-3. A senha deve virar um hash.
-4. No login, o sistema compara a senha digitada com o hash salvo.
-5. Se estiver correto, o backend gera um token.
-6. Esse token funciona como uma sessão.
-7. Para acessar uma rota protegida, o usuário envia o token.
-8. O middleware verifica o token.
-9. Se o token for válido, a rota é liberada.
-10. Se o token estiver ausente ou inválido, o acesso é bloqueado.
-
-## 16. Partes que os alunos precisam completar
-
-No `authController.js`:
-
-- buscar usuário existente no cadastro;
-- gerar o hash da senha;
-- cadastrar o usuário no banco;
-- devolver o usuário sem a senha;
-- buscar usuário no login;
-- comparar a senha digitada com o hash;
-- gerar o JWT;
-- devolver token e dados básicos.
-
-No `authMiddleware.js`:
-
-- ler o cabeçalho `Authorization`;
-- verificar e separar o token;
-- validar o JWT;
-- buscar o usuário correspondente;
-- adicionar o usuário em `req.user`;
-- chamar `next()`.
-
-Depois de cada implementação, trate também casos como email já cadastrado, usuário inexistente, senha incorreta, token ausente e token inválido.
-
-## 17. Checklist da aula
-
-- [ ] Rodei a API
-- [ ] Acessei GET /health
-- [ ] Entendi a estrutura de pastas
-- [ ] Entendi o que é middleware
-- [ ] Completei a busca de usuário no cadastro
-- [ ] Completei o hash da senha no cadastro
-- [ ] Completei o cadastro no banco
-- [ ] Completei a busca de usuário no login
-- [ ] Completei a comparação de senha
-- [ ] Completei a geração do token
-- [ ] Completei a leitura do token no middleware
-- [ ] Completei a validação do token
-- [ ] Completei o req.user
-- [ ] Testei a rota protegida sem token
-- [ ] Testei a rota protegida com token válido
-- [ ] Pensei quais rotas do meu TCC precisam ser protegidas
-
-## 18. Como adaptar para o TCC
-
-Cada grupo deve identificar:
-
-- quais usuários o sistema terá;
-- quais rotas serão públicas;
-- quais rotas exigirão login;
-- quais dados pertencem ao usuário logado;
-- quais funcionalidades só devem funcionar depois do login.
-
-Exemplos de rotas públicas:
-
-- `POST /auth/register`
-- `POST /auth/login`
-- `GET /produtos`
-
-Exemplos de rotas protegidas:
-
-- `GET /perfil`
-- `POST /pedidos`
-- `GET /meus-agendamentos`
-- `POST /comentarios`
-
-Por exemplo, ao criar um pedido, a API pode usar `req.user.id` para relacionar o pedido ao usuário autenticado. Esta primeira versão trabalha somente com autenticação e ainda não diferencia usuários administradores.
-
-## 19. Próxima evolução: roles e admin
-
-Depois que cadastro, login, sessão/token e middleware estiverem funcionando, o projeto poderá evoluir para:
-
-- adicionar o campo `role` no usuário;
-- criar usuários comuns e administradores;
-- criar middleware de autorização;
-- criar rotas acessíveis apenas por admin;
-- aplicar permissões nas rotas reais do TCC.
-
-Roles e admin não estão implementados nesta versão. Primeiro é importante dominar o fluxo básico de autenticação.
+Esses usuários são utilizados para testar as diferenças de acesso entre um usuário comum e um administrador.
