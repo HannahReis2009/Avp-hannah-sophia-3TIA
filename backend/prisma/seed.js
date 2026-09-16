@@ -1,25 +1,43 @@
 import bcrypt from "bcrypt";
+
 import prisma from "../src/prismaClient.js";
 
 async function main() {
-  // A senha salva no banco nunca deve ser a senha pura.
-  // O hash transforma a senha antes de ela ser armazenada.
   const hashedPassword = await bcrypt.hash("123456", 10);
 
+  // Usuário comum
   await prisma.user.upsert({
     where: { email: "aluno@email.com" },
     update: {
       name: "Aluno Teste",
       password: hashedPassword,
+      role: "USER",
     },
     create: {
       name: "Aluno Teste",
       email: "aluno@email.com",
       password: hashedPassword,
+      role: "USER",
     },
   });
 
-  console.log("Seed executado: usuário de teste criado ou atualizado.");
+  // Usuário administrador
+  await prisma.user.upsert({
+    where: { email: "admin@email.com" },
+    update: {
+      name: "Administrador",
+      password: hashedPassword,
+      role: "ADMIN",
+    },
+    create: {
+      name: "Administrador",
+      email: "admin@email.com",
+      password: hashedPassword,
+      role: "ADMIN",
+    },
+  });
+
+  console.log("Seed executado: usuários USER e ADMIN criados ou atualizados.");
 }
 
 main()

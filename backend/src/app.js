@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors";
+
 import authRoutes from "./routes/authRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 
@@ -15,7 +16,7 @@ app.get("/health", (req, res) => {
   });
 });
 
-app.use("/auth", authRoutes);
-app.use("/users", userRoutes);
+app.use("/", authRoutes);
+app.use("/", userRoutes);
 
 export default app;
