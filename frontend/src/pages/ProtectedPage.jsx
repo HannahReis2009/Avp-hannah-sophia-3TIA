@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api.js";
 import { getToken, removeToken } from "../services/auth.js";
+import BrandMark from "../components/BrandMark.jsx";
 
 export default function ProtectedPage() {
   const [user, setUser] = useState(null);
@@ -66,24 +67,32 @@ async function loadProfile() {
   }, []);
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-gray-100 px-4 py-8">
-      <section className="w-full max-w-lg rounded-xl bg-white p-6 shadow-md sm:p-8">
-        <h1 className="mb-4 text-center text-2xl font-bold text-gray-900">Área Protegida</h1>
-        <p role="status" className="mb-5 rounded-md bg-green-50 p-3 text-center text-green-700">Login realizado com sucesso</p>
+    <main className="auth-shell flex items-center justify-center px-4 py-8">
+      <section className="auth-card w-full max-w-lg p-6 sm:p-8">
+        <div className="auth-card-inner">
+          <div className="profile-intro">
+            <BrandMark />
+            <p className="eyebrow">Sessão ativa</p>
+          </div>
+          <div className="auth-heading">
+            <h1 className="auth-title mb-4 text-center text-3xl font-bold">Área Protegida</h1>
+          </div>
+        <p role="status" className="success-message mb-5 rounded-md p-3 text-center">Login realizado com sucesso</p>
 
-        {loading && <p role="status" className="mb-4 text-gray-600">Carregando perfil...</p>}
-        {error && <p role="alert" className="mb-4 text-red-600">{error}</p>}
+        {loading && <p role="status" className="mb-4 text-slate-400">Carregando perfil...</p>}
+        {error && <p role="alert" className="error-message mb-4">{error}</p>}
 
-        <div className="mb-6 space-y-2 rounded-md border border-gray-200 p-4 text-gray-700">
-          <h2 className="font-semibold text-gray-900">Dados do usuário</h2>
+        <div className="profile-data mb-6 space-y-2 rounded-md p-4">
+          <h2 className="font-semibold">Dados do usuário</h2>
           <p><strong>ID:</strong> {user?.id ?? "Aguardando perfil"}</p>
           <p><strong>Nome:</strong> {user?.name ?? "Aguardando perfil"}</p>
           <p><strong>Email:</strong> {user?.email ?? "Aguardando perfil"}</p>
         </div>
 
-        <button type="button" onClick={handleLogout} className="w-full rounded-md bg-blue-600 px-4 py-2 font-semibold text-white hover:bg-blue-700">
+        <button type="button" onClick={handleLogout} className="primary-button w-full rounded-md px-4 py-2 font-semibold text-white">
           Sair
         </button>
+        </div>
       </section>
     </main>
   );

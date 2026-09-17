@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import api from "../services/api.js";
+import BrandMark from "../components/BrandMark.jsx";
 
 export default function Register() {
   const [name, setName] = useState("");
@@ -39,35 +40,44 @@ export default function Register() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-gray-100 px-4 py-8">
-      <section className="w-full max-w-md rounded-xl bg-white p-6 shadow-md sm:p-8">
-        <h1 className="mb-6 text-center text-2xl font-bold text-gray-900">Criar conta</h1>
-
-        <form onSubmit={handleRegister} className="space-y-4">
-          <div>
-            <label htmlFor="name" className="mb-1 block text-sm font-medium text-gray-700">Nome</label>
-            <input id="name" name="name" type="text" autoComplete="name" value={name} onChange={(event) => setName(event.target.value)} className="w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 focus:border-blue-500 focus:outline-none" />
+    <main className="auth-shell flex items-center justify-center px-4 py-8">
+      <section className="auth-card w-full max-w-lg px-8 py-10 sm:px-10 sm:py-12">
+        <div className="auth-card-inner">
+          <div className="flex justify-center">
+            <BrandMark />
           </div>
-          <div>
-            <label htmlFor="email" className="mb-1 block text-sm font-medium text-gray-700">Email</label>
-            <input id="email" name="email" type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} className="w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 focus:border-blue-500 focus:outline-none" />
-          </div>
-          <div>
-            <label htmlFor="password" className="mb-1 block text-sm font-medium text-gray-700">Senha</label>
-            <input id="password" name="password" type="password" autoComplete="new-password" value={password} onChange={(event) => setPassword(event.target.value)} className="w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 focus:border-blue-500 focus:outline-none" />
+          <div className="auth-heading">
+            <p className="eyebrow mb-3 text-center">Comece agora</p>
+            <h1 className="auth-title mb-6 text-center text-3xl font-bold">Criar conta</h1>
           </div>
 
-          {error && <p role="alert" className="text-sm text-red-600">{error}</p>}
-          {success && <p role="status" className="text-sm text-green-600">{success}</p>}
+          <form onSubmit={handleRegister} className="space-y-4">
+          <div>
+            <label htmlFor="name" className="field-label mb-1 block text-center text-sm font-medium">Nome</label>
+            <input id="name" name="name" type="text" autoComplete="name" value={name} onChange={(event) => setName(event.target.value)} className="auth-input w-full rounded-md px-3 py-2" />
+          </div>
+          <div>
+            <label htmlFor="email" className="field-label mb-1 block text-center text-sm font-medium">Email</label>
+            <input id="email" name="email" type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} className="auth-input w-full rounded-md px-3 py-2" />
+          </div>
+          <div>
+            <label htmlFor="password" className="field-label mb-1 block text-center text-sm font-medium">Senha</label>
+            <input id="password" name="password" type="password" autoComplete="new-password" value={password} onChange={(event) => setPassword(event.target.value)} className="auth-input w-full rounded-md px-3 py-2" />
+          </div>
 
-          <button type="submit" disabled={loading} className="w-full rounded-md bg-blue-600 px-4 py-2 font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60">
+          {error && <p role="alert" className="error-message text-sm">{error}</p>}
+          {success && <p role="status" className="success-message rounded-md p-3 text-sm">{success}</p>}
+
+          <button type="submit" disabled={loading} className="primary-button w-full rounded-md px-4 py-2 font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60">
             {loading ? "Cadastrando..." : "Cadastrar"}
           </button>
-        </form>
+          </form>
 
-        <p className="mt-5 text-center text-sm text-gray-600">
-          Já tem conta? <Link to="/login" className="font-medium text-blue-600 hover:underline">Entrar</Link>
-        </p>
+          <div className="auth-nav">
+            <span>Já tem conta?</span>
+            <Link to="/login" className="nav-button">Entrar</Link>
+          </div>
+        </div>
       </section>
     </main>
   );
