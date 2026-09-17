@@ -9,7 +9,37 @@ export default function ProtectedPage() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  function loadProfile() {
+ 
+async function loadProfile() {
+  const token = getToken();
+
+  if (!token) {
+    navigate("/login");
+    return;
+  }
+
+  try {
+    setLoading(true);
+    setError("");
+
+    const response = await api.get("/perfil");
+
+    setUser(response.data.user);
+  } catch (requestError) {
+    if (requestError.response?.status === 401) {
+      removeToken();
+      navigate("/login");
+      return;
+    }
+
+    setError(
+      requestError.response?.data?.message ||
+        "Não foi possível carregar o perfil."
+    );
+  } finally {
+    setLoading(false);
+  }
+
     // TODO: pegar o token salvo no localStorage usando getToken.
     // TODO: se não existir token, redirecionar para /login.
     // TODO: ativar loading.
@@ -23,6 +53,8 @@ export default function ProtectedPage() {
   }
 
   function handleLogout() {
+    removeToken();
+    navigate("/login");
     // TODO: remover o token usando removeToken.
     // TODO: redirecionar para /login.
   }

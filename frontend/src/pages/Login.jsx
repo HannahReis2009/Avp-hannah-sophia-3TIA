@@ -21,12 +21,12 @@ export default function Login() {
 
     try {
       setLoading(true);
-      const response = await api.post("/auth/login", {
+      const response = await api.post("/login", {
         email: email.trim(),
         password,
       });
       saveToken(response.data.token);
-      navigate("/protegida");
+      navigate("/perfil");
     } catch (requestError) {
       setError(
         requestError.response?.data?.message ||

@@ -23,7 +23,7 @@ export default function Register() {
     }
     try {
       setLoading(true);
-      await api.post("/auth/register", { name, email, password });
+      await api.post("/usuarios", { name, email, password });
       setSuccess("Cadastro realizado com sucesso! Você já pode fazer login.");
       setName("");
       setEmail("");

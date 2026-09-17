@@ -1,7 +1,11 @@
 import { Navigate, Route, Routes } from "react-router-dom";
+
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
+
 import Register from "./pages/Register.jsx";
+
 import Login from "./pages/Login.jsx";
+
 import ProtectedPage from "./pages/ProtectedPage.jsx";
 
 export default function App() {
@@ -11,9 +15,9 @@ export default function App() {
       <Route path="/register" element={<Register />} />
       <Route path="/login" element={<Login />} />
 
-      {/* /protegida deve exigir token. ProtectedRoute bloqueará a navegação sem ele. */}
+      {/* /perfil deve exigir token. ProtectedRoute bloqueará a navegação sem ele. */}
       <Route
-        path="/protegida"
+        path="/perfil"
         element={
           <ProtectedRoute>
             <ProtectedPage />
